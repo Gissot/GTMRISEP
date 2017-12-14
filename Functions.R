@@ -114,3 +114,31 @@ G<-function(R){
   }
   G
 }
+
+Output <- function(D,M,K,W,beta,Mu,Fhi,lambda,delta,R,G){
+
+list(D = D, M = M, K = K, W = W, beta = beta, Mu = Mu, Fhi = Fhi,lambda = lambda, delta = delta, R = R, G = G)
+
+plot(?, ?, type="p", xlab="", ylab="", axes=F)
+
+
+
+axis(1,at=axTicks(1),labels=as.integer(axTicks(1)))
+
+
+axis(2,at=axTicks(2),labels=as.integer(axTicks(2)))
+
+
+title(main="GTM", sub="", xlab="x-label", ylab="y-label")
+
+
+box()
+
+
+pdf("plot.pdf",width=4,height=4)
+
+
+
+cat("Thanks for your interest in running the GTM package.\n\n")
+
+} 
