@@ -2,10 +2,20 @@ mu_m<-function(K,M){
   MU=matrix(0,K,M)
   for(k in 1:K){
     for(m in 1:M){
-      MU[k,m]=k+m
+      MU[k,m]=k+m+0.5
     }
   }
   MU
+}
+
+x<-function(K,L){
+  x=matrix(0,K,L)
+  for(k in 1:K){
+    for(l in 1:L){
+      x[k,m]=k+l
+    }
+  }
+  x
 }
 
 Phi <-function (M,L,MU, sigma, X) {
@@ -55,23 +65,24 @@ Delta<-function(t,Phi,W,K,N){
   delta
 }
 
-gtm<-function(data,D,M,alpha){
+gtm<-function(data,D,M,L,alpha){
   N=length(data)
   mu<-mu_m(K,M)
+  x=x(K,L)
   sigma=0.01
-  phi=Phi(M,Mnl,mu,sigma,data)
+  phi=Phi(M,Mnl,mu,sigma,x)
   w=W(D,M,sigma)
   lambda=alpha/B
-  B=beta(data,t,N,D,W,phi)
-  delta1=Delta(t,phi,w,K,N)
+  B=beta(x,data,N,D,W,phi)
+  delta1=Delta(data,phi,w,K,N)
   delta=0
   while(delta1-delta<0.0001 && delta-delta1<0.0001){
     delta=delta1
     r=R(delta,beta,N,K)
     g=G(R)
-    W=solve(phi%*%aperm(g)%*%phi+lambda*I)%*%phi%*%aperm(r)%*%t
-    delta1=Delta(t,phi,w)
-    B=beta(data,t,N,D,w,phi)
+    w=solve(phi%*%aperm(g)%*%phi+lambda*I)%*%phi%*%aperm(r)%*%data
+    delta1=Delta(data,phi,w)
+    B=beta(x,data,N,D,w,phi)
   }
   list(D = D, M = M, K = K, W = W, beta = beta, Mu = Mu, Fhi = Fhi,lambda = lambda, delta = delta, R = R, G = G)
   plot(?, ?, type="p", xlab="", ylab="", axes=F)
@@ -83,13 +94,13 @@ gtm<-function(data,D,M,alpha){
   cat("Thanks for your interest in running the GTM package.\n\n")
 }
 
-predict<-function(t,Phi,W,K,Beta){#t here is only one point
-  delta=Delta(t,Phi,W,K,1)
-  M=matrix(0,K,1)
-  Mnorm=matrix(0,K,1)
-  for(k in 1:K){
-    M[k]=t-Phi[k]%*%W
-    Mnorm[k]=(t-Phi[k]%*%W)/dnorm(sqrt(delta[k,1]),mean=Phi[k]%*%W,sd=Beta,log=FALSE)
+predict<-function(t,model){#t here is only one point
+  delta=Delta(t,model$Phi,model$W,model$K,1)
+  M=matrix(0,model$K,1)
+  Mnorm=matrix(0,model$K,1)
+  for(k in 1:model$K){
+    M[k]=t-model$Phi[k]%*%model$W
+    Mnorm[k]=(t-model$Phi[k]%*%model$W)/dnorm(sqrt(model$delta[k,1]),mean=model$Phi[k]%*%model$W,sd=model$Beta,log=FALSE)
   }
   M[order(M, decreasing=TRUE)]
   Mnorm[order(M, decreasing=TRUE)]
