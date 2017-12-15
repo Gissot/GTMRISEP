@@ -8,7 +8,8 @@ mu_m<-function(K,M){
   MU
 }
 
-Phi <-function (M,Mnl,MU, sigma, X) {
+Phi <-function (M,L,MU, sigma, X) {
+  Mnl=M-L
   K=length(X)
   Phi=matrix(0,nrow=K,ncol=M)
   for(m in 1:M){    
@@ -17,7 +18,7 @@ Phi <-function (M,Mnl,MU, sigma, X) {
       Phi[m] = exp(-((X-MU[m])%*%(X-MU[m]))/(2 * sigma^2))
     }
     if(m<M && m>Mnl){
-      Phi[m]=x**(m-Mnl)
+      Phi[m]=x[m-Mnl]
     }
     else{
       Phi[m]=1
@@ -54,8 +55,8 @@ Delta<-function(t,Phi,W,K,N){
   delta
 }
 
-gtm<-function(data,D,M,N,alpha){
-  K=length(data)
+gtm<-function(data,D,M,alpha){
+  N=length(data)
   mu<-mu_m(K,M)
   sigma=0.01
   phi=Phi(M,Mnl,mu,sigma,data)
@@ -72,18 +73,26 @@ gtm<-function(data,D,M,N,alpha){
     delta1=Delta(t,phi,w)
     B=beta(data,t,N,D,w,phi)
   }
+  list(D = D, M = M, K = K, W = W, beta = beta, Mu = Mu, Fhi = Fhi,lambda = lambda, delta = delta, R = R, G = G)
+  plot(?, ?, type="p", xlab="", ylab="", axes=F)
+  axis(1,at=axTicks(1),labels=as.integer(axTicks(1)))
+  axis(2,at=axTicks(2),labels=as.integer(axTicks(2)))
+  title(main="GTM", sub="", xlab="x-label", ylab="y-label")
+  box()
+  pdf("plot.pdf",width=4,height=4)
+  cat("Thanks for your interest in running the GTM package.\n\n")
 }
 
-predict<-function(t,Phi,W,K,Beta){#t ici n'est qu'un seul point à prédire
+predict<-function(t,Phi,W,K,Beta){#t here is only one point
   delta=Delta(t,Phi,W,K,1)
   M=matrix(0,K,1)
   Mnorm=matrix(0,K,1)
   for(k in 1:K){
     M[k]=t-Phi[k]%*%W
     Mnorm[k]=(t-Phi[k]%*%W)/dnorm(sqrt(delta[k,1]),mean=Phi[k]%*%W,sd=Beta,log=FALSE)
-  } #demander à Denis si c'est bien ça la ligne au-dessus ^^'
-  M[order(M, decreasing=TRUE)[1:20]]
-  Mnorm[order(M, decreasing=TRUE)[1:20]]
+  }
+  M[order(M, decreasing=TRUE)]
+  Mnorm[order(M, decreasing=TRUE)]
 }
 
 R <- function(delta,beta,K,N){
@@ -115,7 +124,7 @@ G<-function(R){
   G
 }
 
-Output <- function(D,M,K,W,beta,Mu,Fhi,lambda,delta,R,G){
+Output <- function(D,M,K,W,beta,Mu,Fhi,lambda,delta,R,G){ #This part has been integrated in the gtm function
 
 list(D = D, M = M, K = K, W = W, beta = beta, Mu = Mu, Fhi = Fhi,lambda = lambda, delta = delta, R = R, G = G)
 
