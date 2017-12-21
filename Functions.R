@@ -85,7 +85,7 @@ gtm<-function(data,D,M,L,alpha){
     B=beta(x,data,N,D,w,phi)
   }
   list(D = D, M = M, K = K, W = W, beta = beta, Mu = Mu, Fhi = Fhi,lambda = lambda, delta = delta, R = R, G = G)
-  plot(?, ?, type="p", xlab="", ylab="", axes=F)
+  plot(t[,1], t[,2], type="p", xlab="", ylab="", axes=F)
   axis(1,at=axTicks(1),labels=as.integer(axTicks(1)))
   axis(2,at=axTicks(2),labels=as.integer(axTicks(2)))
   title(main="GTM", sub="", xlab="x-label", ylab="y-label")
@@ -139,7 +139,7 @@ Output <- function(D,M,K,W,beta,Mu,Fhi,lambda,delta,R,G){ #This part has been in
 
 list(D = D, M = M, K = K, W = W, beta = beta, Mu = Mu, Fhi = Fhi,lambda = lambda, delta = delta, R = R, G = G)
 
-plot(?, ?, type="p", xlab="", ylab="", axes=F)
+plot(t[,1], t[,2], type="p", xlab="", ylab="", axes=F)
 
 
 
