@@ -78,47 +78,52 @@ gtm<-function(data,D,M,L,alpha){
   B=beta(x,data,N,D,w,phi,M)
   lambda=alpha/B
   delta1=Delta(data,phi,w,K,N)
-  delta=0
+  d=0
+  delta=d
+  r=R(delta1,phi,w,B,N,K)
+  g=G(r,K,N)
+  if(N=2){i=matrix(c(1,0,0),2,2)}
+  if(N=3){i=matrix(c(1,0,0,0),3,3)}
   while(delta1-delta<0.0001 && delta-delta1<0.0001){
     delta=delta1
-    r=R(delta,beta,N,K)
-    g=G(R)
-    w=solve(phi%*%aperm(g)%*%phi+lambda*I)%*%phi%*%aperm(r)%*%data
+    r=R(delta,phi,w,B,N,K)
+    g=G(r,K,N)
+    w=solve(phi%*%aperm(g)%*%phi+lambda*i)%*%phi%*%aperm(r)%*%data
     delta1=Delta(data,phi,w)
     B=beta(x,data,N,D,w,phi,M)
   }
-  list(D = D, M = M, K = K, w = w, beta = beta, Phi = Phi,lambda = lambda, delta = delta, R = R, G = G)
+  list(D = D, M = M, K = K, w = w, B = B, phi = phi,lambda = lambda, delta = delta, r = r, g = g)
   #check if t is dimension 2
-  plot(t[,1], t[,2], type="p", xlab="", ylab="", axes=F)
-  axis(1,at=axTicks(1),labels=as.integer(axTicks(1)))
-  axis(2,at=axTicks(2),labels=as.integer(axTicks(2)))
-  title(main="GTM", sub="", xlab="x-label", ylab="y-label")
-  box()
-  pdf("plot.pdf",width=4,height=4)
-  cat("Thanks for your interest in running the GTM package.\n\n")
+  #plot(t[,1], t[,2], type="p", xlab="", ylab="", axes=F)
+  #axis(1,at=axTicks(1),labels=as.integer(axTicks(1)))
+  #axis(2,at=axTicks(2),labels=as.integer(axTicks(2)))
+  #title(main="GTM", sub="", xlab="x-label", ylab="y-label")
+  #box()
+  #pdf("plot.pdf",width=4,height=4)
+  #cat("Thanks for your interest in running the GTM package.\n\n")
 }
 
 predict<-function(t,model){#t here is only one point
-  delta=Delta(t,model$Phi,model$W,model$K,1)
+  delta=Delta(t,model$phi,model$w,model$K,1)
   M=matrix(0,model$K,1)
   Mnorm=matrix(0,model$K,1)
   for(k in 1:model$K){
-    M[k]=t-model$Phi[k]%*%model$W
-    Mnorm[k]=(t-model$Phi[k]%*%model$W)/dnorm(sqrt(model$delta[k,1]),mean=model$Phi[k]%*%model$W,sd=model$Beta,log=FALSE)
+    M[k]=t-model$phi[k,]%*%model$w
+    Mnorm[k]=(t-model$phi[k,]%*%model$w)/dnorm(sqrt(model$delta[k,1]),mean=model$phi[k,]%*%model$w,sd=model$B,log=FALSE)
   }
   M[order(M, decreasing=TRUE)]
   Mnorm[order(M, decreasing=TRUE)]
 }
 
-R <- function(delta,beta,K,N){
-  R = Matrix(0,K,N)
+R <- function(delta,Phi,w,beta,K,N){
+  R = matrix(0,K,N)
   p = 1/K
   for(k in 1:K){
-    for(n in 1:n){
-      r1 = dnorm(delta[k,n] , mean = Phi[k]%*%W ,sd = beta,log = FALSE)*p
+    for(n in 1:N){
+      r1 = dnorm(delta[k,n] , mean = (Phi[k,]%*%w)%*%aperm(Phi[k,]%*%w) ,sd = beta,log = FALSE)*p
       s = 0
       for(l in 1:K){
-        r = dnorm(delta[l,n] , mean = Phi[l]%*%W ,sd = beta,log = FALSE)*p
+        r = dnorm(delta[l,n] , mean = (Phi[l,]%*%w)%*%aperm(Phi[l,]%*%w) ,sd = beta,log = FALSE)*p
         s = s + r
       }
       R[k,n]=r1/s
@@ -127,7 +132,7 @@ R <- function(delta,beta,K,N){
   R
 }
 
-G<-function(R){
+G<-function(R,K,N){
   G=R
   for(k in 1:K){
     for(n in 1:N){
