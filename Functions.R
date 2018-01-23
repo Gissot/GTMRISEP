@@ -78,13 +78,13 @@ gtm<-function(data,D,M,L,alpha){
   B=beta(x,data,N,D,w,phi,M)
   lambda=alpha/B
   delta1=Delta(data,phi,w,K,N)
-  d=0
+  d=matrix(0,K,N)
   delta=d
   r=R(delta1,phi,w,B,N,K)
   g=G(r,K,N)
-  if(N=2){i=matrix(c(1,0,0),2,2)}
-  if(N=3){i=matrix(c(1,0,0,0),3,3)}
-  while(delta1-delta<0.0001 && delta-delta1<0.0001){
+  if(D==2){i=matrix(c(1,0,0),2,2)}
+  if(D==3){i=matrix(c(1,0,0,0),3,3)}
+  while((delta%*%aperm(delta))-(delta1%*%aperm(delta1))<0.0001){
     delta=delta1
     r=R(delta,phi,w,B,N,K)
     g=G(r,K,N)
@@ -92,6 +92,7 @@ gtm<-function(data,D,M,L,alpha){
     delta1=Delta(data,phi,w)
     B=beta(x,data,N,D,w,phi,M)
   }
+  browser()
   list(D = D, M = M, K = K, w = w, B = B, phi = phi,lambda = lambda, delta = delta, r = r, g = g)
   #check if t is dimension 2
   #plot(t[,1], t[,2], type="p", xlab="", ylab="", axes=F)
@@ -115,15 +116,15 @@ predict<-function(t,model){#t here is only one point
   Mnorm[order(M, decreasing=TRUE)]
 }
 
-R <- function(delta,Phi,w,beta,K,N){
+R <- function(deltaa,Phi,w,beta,K,N){
   R = matrix(0,K,N)
   p = 1/K
   for(k in 1:K){
     for(n in 1:N){
-      r1 = dnorm(delta[k,n] , mean = (Phi[k,]%*%w)%*%aperm(Phi[k,]%*%w) ,sd = beta,log = FALSE)*p
+      r1 = dnorm(x = deltaa[k,n] , mean = (Phi[k,]%*%w)%*%aperm(Phi[k,]%*%w) ,sd = beta,log = FALSE)*p
       s = 0
       for(l in 1:K){
-        r = dnorm(delta[l,n] , mean = (Phi[l,]%*%w)%*%aperm(Phi[l,]%*%w) ,sd = beta,log = FALSE)*p
+        r = dnorm(deltaa[l,n] , mean = (Phi[l,]%*%w)%*%aperm(Phi[l,]%*%w) ,sd = beta,log = FALSE)*p
         s = s + r
       }
       R[k,n]=r1/s
